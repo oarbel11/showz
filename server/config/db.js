@@ -14,8 +14,8 @@ function saveDb() {
   }
 }
 
-async function getDb() {
-  if (db) return db;
+async function getDb(forceReload = false) {
+  if (db && !forceReload) return db;
 
   const SQL = await initSqlJs();
 

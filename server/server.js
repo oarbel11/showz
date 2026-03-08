@@ -137,7 +137,25 @@ if (fs.existsSync(clientBuildPath)) {
 
 // Initialize DB before starting server
 async function start() {
-  await getDb();
+  const db = await getDb();
+
+  // Auto-seed if DB is empty (first deploy on Render)
+  const userCount = queryOne(db, 'SELECT COUNT(*) as count FROM users');
+  if (!userCount || userCount.count === 0) {
+    console.log('📦 Empty DB detected — auto-seeding...');
+    try {
+      require('child_process').execSync('node seed.js', {
+        cwd: __dirname,
+        stdio: 'inherit',
+        env: { ...process.env }
+      });
+      // Reload DB after seed
+      await getDb(true);
+    } catch (err) {
+      console.error('Auto-seed failed:', err.message);
+    }
+  }
+
   const PORT = process.env.PORT || 5000;
   server.listen(PORT, () => {
     console.log(`\n🎬 ShowZ Server running on http://localhost:${PORT}`);

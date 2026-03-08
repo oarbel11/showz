@@ -19,10 +19,14 @@
   * {
     box-sizing: border-box;
   }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 }
 
@@ -44,8 +48,19 @@
 .animate-slideUp { animation: slideUp 0.4s ease-out; }
 .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
 
+/* Mobile bottom nav safe area */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Mobile-friendly tap targets */
+@media (max-width: 767px) {
+  button, a { min-height: 44px; }
+  input, select, textarea { font-size: 16px !important; }
+}
