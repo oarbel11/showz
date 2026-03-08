@@ -1,0 +1,12 @@
+{
+  "name": "showz",
+  "version": "1.0.0",
+  "description": "ShowZ — Social Networking for Entertainment Professionals",
+  "scripts": {
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && node server.js",
+    "seed": "cd server && node seed.js",
+    "dev": "echo Use npm run dev in client/ and server/ separately"
+  }
+}

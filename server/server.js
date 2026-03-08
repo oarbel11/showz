@@ -11,11 +11,13 @@ const { getDb, saveDb, queryAll, queryOne, runSql } = require('./config/db');
 
 const app = express();
 const server = http.createServer(app);
+
+const allowedOrigins = process.env.CLIENT_URL
+  ? [process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:3000']
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 const io = new Server(server, {
-  cors: {
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
-    methods: ['GET', 'POST']
-  }
+  cors: { origin: allowedOrigins, methods: ['GET', 'POST'] }
 });
 
 // Ensure uploads directory exists
@@ -25,10 +27,7 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Middleware
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true
-}));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(uploadsDir));
@@ -123,6 +122,18 @@ io.on('connection', async (socket) => {
     console.log(`User disconnected: ${socket.user.name}`);
   });
 });
+
+// Serve React build in production
+const clientBuildPath = path.join(__dirname, '..', 'client', 'dist');
+if (fs.existsSync(clientBuildPath)) {
+  app.use(express.static(clientBuildPath));
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads') && !req.path.startsWith('/socket.io')) {
+      res.sendFile(path.join(clientBuildPath, 'index.html'));
+    }
+  });
+  console.log('📦 Serving React build from client/dist');
+}
 
 // Initialize DB before starting server
 async function start() {
